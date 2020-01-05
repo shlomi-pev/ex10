@@ -1,3 +1,5 @@
 /venv/*
 /api/*
 api.zip
+*.xml
+/.idea/*
