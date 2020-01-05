@@ -5,7 +5,8 @@ from asteroid import *
 from torpedo import *
 from vector import *
 DEFAULT_ASTEROIDS_NUM = 5
-
+TURN_RIGHT = -7
+TURN_LEFT = 7
 
 class GameRunner:
 
@@ -38,8 +39,18 @@ class GameRunner:
         self.__screen.ontimer(self._do_loop, 5)
 
     def _game_loop(self):
-        # TODO: Your code goes here
-        pass
+        if self.__screen.is_right_pressed():
+            self.__ship.rotate(TURN_RIGHT)
+        if self.__screen.is_left_pressed():
+            self.__ship.rotate(TURN_LEFT)
+        if self.__screen.is_up_pressed():
+            self.__ship.accelerate()
+
+        self.__ship.move(self.__screen_min,self.__screen_max)
+
+        self.__screen.draw_ship(self.__ship.get_location()[0],
+                                self.__ship.get_location()[1],
+                                self.__ship.get_heading())
 
 
 def main(amount):
