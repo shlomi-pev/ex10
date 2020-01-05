@@ -4,6 +4,7 @@ from ship import *
 from asteroid import *
 from torpedo import *
 from vector import *
+import random as r
 
 DEFAULT_ASTEROIDS_NUM = 5
 TURN_RIGHT = -7
@@ -20,11 +21,14 @@ class GameRunner:
         self.__screen_min = Vector(self.__screen_min_x, self.__screen_min_y)
         self.__screen_max = Vector(self.__screen_max_x, self.__screen_max_y)
         # generating ship and placing on screen
-        self.__ship = Ship()
+        self.__ship = self.gen_ship()
         self.__ship.random_teleport(self.__screen_min, self.__screen_max)
-        ship_x, ship_y = self.__ship.get_location()
-        ship_h = self.__ship.get_heading()
-        self.__screen.draw_ship(ship_x, ship_y, ship_h)
+        self.__astroids_list = self.__generate_asteroids(asteroids_amount)
+
+    def gen_ship(self):
+        location = Vector.random(self.__screen_min,self.__screen_max)
+        my_ship = Ship(location=location)
+        return my_ship
 
     def run(self):
         self._do_loop()
@@ -46,11 +50,43 @@ class GameRunner:
         if self.__screen.is_up_pressed():
             self.__ship.accelerate()
 
-        self.__ship.move(self.__screen_min,self.__screen_max)
+        self.move_all()
+        self.draw_all()
 
-        self.__screen.draw_ship(self.__ship.get_location()[0],
-                                self.__ship.get_location()[1],
-                                self.__ship.get_heading())
+    def __generate_asteroids(self, asteroids_amount):
+        rand = lambda : r.choice((-1,1)) * r.uniform(1,4)
+        size = 3
+        asteroids_list = list()
+        for i in range(asteroids_amount):
+            velocity = Vector(rand(), rand())
+            location = Vector.random(self.__screen_min, self.__screen_max)
+          #     while location.get_as_tuple() == self.__ship.get_location():
+          #     location = Vector.random(self.__screen_min, self.__screen_max)
+            new_asteroid = Asteroid(location,velocity,size)
+            asteroids_list.append(new_asteroid)
+            self.__screen.register_asteroid(new_asteroid,size)
+        return asteroids_list
+
+
+    def draw_all(self):
+        #  draws the ship
+        ship_x, ship_y = self.__ship.get_location()
+        ship_h = self.__ship.get_heading()
+        self.__screen.draw_ship(ship_x, ship_y, ship_h)
+        # draws the asteroids
+        for asteroid in self.__astroids_list:
+            ast_x, ast_y = asteroid.get_location()
+            self.__screen.draw_asteroid(asteroid,ast_x, ast_y)
+
+    def move_all(self):
+        #  moves the ship
+        self.__ship.move(self.__screen_min, self.__screen_max)
+        #  moves the asteroids
+        for asteroid in self.__astroids_list:
+            asteroid.move(self.__screen_min, self.__screen_max)
+
+#  moves the ship
+
 
 
 def main(amount):
