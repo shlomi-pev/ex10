@@ -7,15 +7,12 @@ class Ship(SpaceObject):
         SpaceObject.__init__(self, location, velocity, heading, RADIOS)
 
     def random_teleport(self, min_v, max_v):
-        self._location = Vector.random(min_v, max_v)
-
-    def get_heading(self):
-        return self._heading
+        self.location = Vector.random(min_v, max_v)
 
     def rotate(self, angle):
-        self._heading += angle
+        self.heading += angle
 
     def accelerate(self):
-        new_x = self._velocity.get_x() + cos(self.get_heading_rad())
-        new_y = self._velocity.get_y() + sin(self.get_heading_rad())
-        self._velocity = Vector(new_x, new_y)
+        new_x = self.velocity.get_x() + cos(self.get_heading_rad())
+        new_y = self.velocity.get_y() + sin(self.get_heading_rad())
+        self.velocity = Vector(new_x, new_y)

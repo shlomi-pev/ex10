@@ -22,6 +22,9 @@ class Vector:
     def get_as_tuple(self):
         return self._x, self._y
 
+    def __copy__(self):
+        return Vector(self._x, self._y)
+
     @classmethod
     def random(cls, min_v, max_v):
         x = r.randint(min_v.get_x(), max_v.get_x())
