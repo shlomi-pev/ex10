@@ -18,6 +18,9 @@ class Vector:
     def set_y(self, y_val):
         self.y = float(y_val)
 
+    def get_as_tuple(self):
+        pass
+
     @classmethod
     def random(cls, min_v, max_v):
         x = r.randint(min_v.get_x(), max_v.get_x())
