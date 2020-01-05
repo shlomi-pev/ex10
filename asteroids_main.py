@@ -22,6 +22,7 @@ class GameRunner:
         self.__screen_max = Vector(self.__screen_max_x, self.__screen_max_y)
         # generating ship and placing on screen
         self.__ship = self.gen_ship()
+        self.__ship_life = 3
         self.__ship.random_teleport(self.__screen_min, self.__screen_max)
         self.__astroids_list = self.__generate_asteroids(asteroids_amount)
 
@@ -42,7 +43,31 @@ class GameRunner:
         self.__screen.update()
         self.__screen.ontimer(self._do_loop, 5)
 
+
+    def __ship_collision(self):
+        for asteroid in self.__astroids_list:
+            if asteroid.has_intersection(self.__ship):
+                self.__screen.show_message("COLLISION",
+                                    "be careful, watch out from asteroids")
+                self.__screen.unregister_asteroid(asteroid)
+                self.__astroids_list.remove(asteroid)
+                self.__ship_life -= 1
+                if self.__ship_life <= 0:
+                    self.__screen.show_message("lost",
+                                               "the geme is over losser")
+                    # todo add shit
+                    pass
+                else:
+                    self.__screen.remove_life()
+
+
+
     def _game_loop(self):
+        #  check for collision destoys asteroid if nennesery and removes a
+        #  life \ ends the game if needed
+        self.__ship_collision()
+        #  checks for torpedo and asteroids collision, destroys and splits
+        #  the asteroid if nessesery
         if self.__screen.is_right_pressed():
             self.__ship.rotate(TURN_RIGHT)
         if self.__screen.is_left_pressed():
@@ -54,15 +79,16 @@ class GameRunner:
         self.draw_all()
 
     def __generate_asteroids(self, asteroids_amount):
-        rand = lambda : r.choice((-1,1)) * r.uniform(1,4)
+        rand = lambda: r.choice((-1, 1)) * r.uniform(1, 4)
         size = 3
         asteroids_list = list()
         for i in range(asteroids_amount):
             velocity = Vector(rand(), rand())
             location = Vector.random(self.__screen_min, self.__screen_max)
-          #     while location.get_as_tuple() == self.__ship.get_location():
-          #     location = Vector.random(self.__screen_min, self.__screen_max)
-            new_asteroid = Asteroid(location,velocity,size)
+            new_asteroid = Asteroid(location, velocity, size)
+            while new_asteroid.has_intersection(self.__ship):
+                location = Vector.random(self.__screen_min, self.__screen_max)
+                new_asteroid = Asteroid(location, velocity, size)
             asteroids_list.append(new_asteroid)
             self.__screen.register_asteroid(new_asteroid,size)
         return asteroids_list

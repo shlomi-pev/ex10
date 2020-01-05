@@ -1,10 +1,10 @@
 from space_object import SpaceObject
 from vector import Vector
-from math import sin,cos
-
+from math import sin, cos
+RADIOS = 1
 class Ship(SpaceObject):
     def __init__(self, location=None, velocity=None, heading=0.0):
-        SpaceObject.__init__(self, location, velocity, heading)
+        SpaceObject.__init__(self, location, velocity, heading, RADIOS)
 
     def random_teleport(self, min_v, max_v):
         self._location = Vector.random(min_v, max_v)
