@@ -58,15 +58,31 @@ class GameRunner:
                 self.__screen.unregister_asteroid(asteroid)
                 self.__astroids_list.remove(asteroid)
                 self.__ship_life -= 1
-                if self.__ship_life <= 0:
-                    self.__screen.show_message("lost",
-                                               "the geme is over losser")
-                    # todo add shit
-                    pass
-                else:
+                if self.__ship_life > 0:
                     self.__screen.remove_life()
 
+
+    def __check_if_end(self):
+        end = False
+        if len(self.__astroids_list) == 0:
+            self.__screen.show_message("you won",
+                                       "great job")
+            end = True
+        if self.__ship_life <= 0:
+            self.__screen.show_message("no life left",
+                                       "the game is over loser")
+            end = True
+        if self.__screen.should_end():
+            self.__screen.show_message("oh no",
+                                      "please don't go")
+            end = True
+        if end:
+            self.__screen.end_game()
+            sys.exit()
+
+
     def _game_loop(self):
+        self.__check_if_end()
         self.__game_length += 1
         #  check for collision destroys asteroid if necessary and removes a
         #  life \ ends the game if needed
@@ -145,6 +161,7 @@ class GameRunner:
             for asteroid in self.__astroids_list:
                 if asteroid.has_intersection(torpedo):
                     self.__player_score += SCORES[asteroid.get_size()]
+                    self.__screen.set_score(self.__player_score)
                     self.__destroy_asteroid(asteroid, torpedo)
 
     def __shoot_torpedo(self, time_of_creation):
