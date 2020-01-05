@@ -4,6 +4,7 @@ from ship import *
 from asteroid import *
 from torpedo import *
 from vector import *
+
 DEFAULT_ASTEROIDS_NUM = 5
 
 
@@ -15,15 +16,14 @@ class GameRunner:
         self.__screen_max_y = Screen.SCREEN_MAX_Y
         self.__screen_min_x = Screen.SCREEN_MIN_X
         self.__screen_min_y = Screen.SCREEN_MIN_Y
-        self.__screen_min = Vector(self.__screen_min_x,self.__screen_min_y)
+        self.__screen_min = Vector(self.__screen_min_x, self.__screen_min_y)
         self.__screen_max = Vector(self.__screen_max_x, self.__screen_max_y)
         # generating ship and placing on screen
         self.__ship = Ship()
         self.__ship.random_teleport(self.__screen_min, self.__screen_max)
-        ship_x ,ship_y = self.__ship.get_location()
+        ship_x, ship_y = self.__ship.get_location()
         ship_h = self.__ship.get_heading()
         self.__screen.draw_ship(ship_x, ship_y, ship_h)
-
 
     def run(self):
         self._do_loop()
