@@ -10,9 +10,6 @@ class Ship:
     def random_teleport(self, min_v, max_v):
         self.__location = Vector.random(min_v, max_v)
 
-    def get_location(self):
-        return self.__location.get_x(), self.__location.get_y()
-
     def get_heading(self):
         return self.__orientation.get_angel_deg()
 
