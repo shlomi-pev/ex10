@@ -12,6 +12,8 @@ TURN_LEFT = 7
 TORPEDO_LIMIT = 10
 TORPEDO_LIFE = 200
 SCORES = {3: 20, 2: 50, 1: 100}
+DEFAULT_ASTEROIDS_SIZE = 3
+MIN_ASTEROID_SIZE = 1
 
 
 class GameRunner:
@@ -61,14 +63,21 @@ class GameRunner:
         self.__screen.ontimer(self._do_loop, 5)
 
     def __ship_collision(self):
+        """
+        this function checks and handles all aspects off collision between
+        the ship and the asteroids
+        :return:
+        """
         for asteroid in self.__astroids_list:
             if asteroid.has_intersection(self.__ship):
+                #  boom
                 self.__screen.show_message("COLLISION",
                                            "be careful, watch out from asteroids")
                 self.__screen.unregister_asteroid(asteroid)
                 self.__astroids_list.remove(asteroid)
-                self.__ship_life -= 1
-                if self.__ship_life > 0:
+                if self.__ship_life > 0:  # makes not to remove life if ship
+                    # all-ready was destroyed in  the same iteration
+                    self.__ship_life -= 1
                     self.__screen.remove_life()
 
 
@@ -109,6 +118,7 @@ class GameRunner:
         self.__torpedo_collision()
         self.__remove_old_torpedos(self.__game_length)
 
+        #  next block checks for inputs from player end implements if needed
         if self.__screen.is_space_pressed():
             self.__shoot_torpedo(self.__game_length)
         if self.__screen.is_right_pressed():
@@ -122,21 +132,36 @@ class GameRunner:
         self.draw_all()
 
     def __generate_asteroids(self, asteroids_amount):
-        rand = lambda: r.choice((-1, 1)) * r.uniform(1, 4)
-        size = 3
+        """
+        generates a list of asteroids with random location and velocity
+        :param asteroids_amount: the amount of asteroids to be created
+        :return: a list containing said asteroids
+        """
+        speed = lambda: r.choice((-1, 1)) * r.uniform(1, 4) # generates
+        # random numbers so that 1<=|speed|<=4
+        size = DEFAULT_ASTEROIDS_SIZE
         asteroids_list = list()
         for i in range(asteroids_amount):
-            velocity = Vector(rand(), rand())
+            #  generates random velocity and location for the new_asteroid
+            velocity = Vector(speed(), speed())
             location = Vector.random(self.__screen_min, self.__screen_max)
+            # creates a new asteroid
             new_asteroid = Asteroid(location, velocity, size)
+            #  checks that there are no collision between
+            #  the new_asteroid and the ship
             while new_asteroid.has_intersection(self.__ship):
                 location = Vector.random(self.__screen_min, self.__screen_max)
                 new_asteroid = Asteroid(location, velocity, size)
+            #  adds a valid asteroid to the game
             asteroids_list.append(new_asteroid)
             self.__screen.register_asteroid(new_asteroid, size)
         return asteroids_list
 
     def draw_all(self):
+        """
+        draws all the objects in the game in their correct position
+        :return:
+        """
         #  draws the ship
         ship_x, ship_y = self.__ship.get_location()
         ship_h = self.__ship.get_heading()
@@ -152,6 +177,10 @@ class GameRunner:
             self.__screen.draw_torpedo(torpedo, tor_x, tor_y, tor_h)
 
     def move_all(self):
+        """
+        moves all the game objects to their updated location
+        :return:
+        """
         #  moves the ship
         self.__ship.move(self.__screen_min, self.__screen_max)
         #  moves the asteroids
@@ -162,18 +191,33 @@ class GameRunner:
             torpedo.move(self.__screen_min, self.__screen_max)
 
     def __destroy_asteroid(self, asteroid, torpedo):
+        """
+        handles all aspects of a collision between an asteroid and a torpedo
+        :param asteroid: an asteroid that ha collided with the given torpedo
+        :param torpedo: a torpedo that has collided with the given asteroid
+        :return:
+        """
+        #  removes both objects from the screen and lists.
         self.__torpedos_list.remove(torpedo)
         self.__screen.unregister_torpedo(torpedo)
         self.__astroids_list.remove(asteroid)
         self.__screen.unregister_asteroid(asteroid)
         old_size = asteroid.get_size()
-        if old_size > 1:
+        # checks if the asteroid is big enough to split
+        if old_size > MIN_ASTEROID_SIZE:
+            #  splits the big asteroid into two small ones
             new_asteroid1, new_asteroid2 = asteroid.split(torpedo)
+            #  registers the two new asteroids
             self.__screen.register_asteroid(new_asteroid1, old_size)
             self.__screen.register_asteroid(new_asteroid2, old_size)
             self.__astroids_list.extend((new_asteroid1, new_asteroid2))
 
     def __torpedo_collision(self):
+        """
+        checks and handles all aspects of collision between asteroids and
+        torpedoes
+        :return:
+        """
         for torpedo in self.__torpedos_list:
             for asteroid in self.__astroids_list:
                 if asteroid.has_intersection(torpedo):
@@ -183,8 +227,15 @@ class GameRunner:
                     break  # handle two torpedoes hitting the same asteroid
 
     def __shoot_torpedo(self, time_of_creation):
+        """
+        handles all aspects of shooting a torpedo
+        :param time_of_creation: the current time in relation to the game
+        :return:
+        """
         if len(self.__torpedos_list) == TORPEDO_LIMIT:
+            # checks if there is space for a new torpedo
             return
+        #  generates a new torpedo
         new_torpedo = Torpedo(self.__ship, time_of_creation)
         self.__torpedos_list.append(new_torpedo)
         self.__screen.register_torpedo(new_torpedo)
