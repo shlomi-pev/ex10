@@ -5,7 +5,7 @@ from asteroid import *
 from torpedo import *
 from vector import *
 import random as r
-
+# sets all magic numbers and defaults
 DEFAULT_ASTEROIDS_NUM = 5
 TURN_RIGHT = -7
 TURN_LEFT = 7
@@ -15,8 +15,14 @@ SCORES = {3: 20, 2: 50, 1: 100}
 
 
 class GameRunner:
-
+    """
+    this is a class that runs the most confusing game known to men
+    """
     def __init__(self, asteroids_amount):
+        """
+        creates a new game with the given amount if asteroids
+        :param asteroids_amount:
+        """
         self.__screen = Screen()
         self.__player_score = 0
         self.__screen_max_x = Screen.SCREEN_MAX_X
@@ -28,12 +34,16 @@ class GameRunner:
         # generating ship and placing on screen
         self.__ship = self.gen_ship()
         self.__ship_life = 3
-        self.__ship.random_teleport(self.__screen_min, self.__screen_max)
+        #  creating and registering all asteroids
         self.__astroids_list = self.__generate_asteroids(asteroids_amount)
         self.__torpedos_list = list()
         self.__game_length = 0
 
     def gen_ship(self):
+        """
+        generates a ship and assign it a random location
+        :return:
+        """
         location = Vector.random(self.__screen_min, self.__screen_max)
         my_ship = Ship(location=location)
         return my_ship
@@ -63,25 +73,32 @@ class GameRunner:
 
 
     def __check_if_end(self):
-        end = False
-        if len(self.__astroids_list) == 0:
+        """
+        this function deals with the end conditions of the game
+        :return:
+        """
+        if len(self.__astroids_list) == 0:  # player won
             self.__screen.show_message("you won",
                                        "great job")
-            end = True
-        if self.__ship_life <= 0:
+        elif self.__ship_life <= 0:  # player lost
             self.__screen.show_message("no life left",
                                        "the game is over loser")
-            end = True
-        if self.__screen.should_end():
+        elif self.__screen.should_end():  # player choose to quit
             self.__screen.show_message("oh no",
                                       "please don't go")
-            end = True
-        if end:
-            self.__screen.end_game()
-            sys.exit()
-
+        else:  # no end condition is met
+            return
+        #  one or more end conditions is met
+        #  closes the graphics and terminating the game
+        self.__screen.end_game()
+        sys.exit()
 
     def _game_loop(self):
+        """
+        this function runs one iteration of the gameloop
+        :return:
+        """
+        #  checks if any end conditions are met, if so ends the game
         self.__check_if_end()
         self.__game_length += 1
         #  check for collision destroys asteroid if necessary and removes a
@@ -146,8 +163,8 @@ class GameRunner:
 
     def __destroy_asteroid(self, asteroid, torpedo):
         self.__torpedos_list.remove(torpedo)
-        self.__astroids_list.remove(asteroid)
         self.__screen.unregister_torpedo(torpedo)
+        self.__astroids_list.remove(asteroid)
         self.__screen.unregister_asteroid(asteroid)
         old_size = asteroid.get_size()
         if old_size > 1:
@@ -163,6 +180,7 @@ class GameRunner:
                     self.__player_score += SCORES[asteroid.get_size()]
                     self.__screen.set_score(self.__player_score)
                     self.__destroy_asteroid(asteroid, torpedo)
+                    break  # handle two torpedoes hitting the same asteroid
 
     def __shoot_torpedo(self, time_of_creation):
         if len(self.__torpedos_list) == TORPEDO_LIMIT:
