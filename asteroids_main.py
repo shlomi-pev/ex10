@@ -80,7 +80,6 @@ class GameRunner:
                     self.__ship_life -= 1
                     self.__screen.remove_life()
 
-
     def __check_if_end(self):
         """
         this function deals with the end conditions of the game
@@ -241,9 +240,15 @@ class GameRunner:
         self.__screen.register_torpedo(new_torpedo)
 
     def __remove_old_torpedos(self, current_time):
+        """
+        checks the age of all torpedoes and deletes the old ones
+        :param current_time: the current time in relation to the game
+        :return:
+        """
         for torpedo in self.__torpedos_list:
             tor_creation_time = torpedo.get_time_of_creation()
             if current_time - tor_creation_time >= TORPEDO_LIFE:
+                # torpedo is too old and is deleted
                 self.__torpedos_list.remove(torpedo)
                 self.__screen.unregister_torpedo(torpedo)
 
