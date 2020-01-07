@@ -207,8 +207,10 @@ class GameRunner:
             #  splits the big asteroid into two small ones
             new_asteroid1, new_asteroid2 = asteroid.split(torpedo)
             #  registers the two new asteroids
-            self.__screen.register_asteroid(new_asteroid1, old_size)
-            self.__screen.register_asteroid(new_asteroid2, old_size)
+            self.__screen.register_asteroid(new_asteroid1,
+                                            new_asteroid1.get_size())
+            self.__screen.register_asteroid(new_asteroid2,
+                                            new_asteroid2.get_size())
             self.__astroids_list.extend((new_asteroid1, new_asteroid2))
 
     def __torpedo_collision(self):
